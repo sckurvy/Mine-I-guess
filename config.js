@@ -94,20 +94,20 @@ const PICKAXES = {
 basic: {
 name: “Basic Pick”,
 power: 1,
-image: “⛏️”, // Placeholder - replace with actual image path
+image: null, // Will be placeholder until you add image URL
 crafting: null // No crafting recipe for basic pickaxe
 }
 // Add more pickaxes here like:
 // iron: {
 //     name: “Iron Pick”,
 //     power: 2,
-//     image: “assets/pickaxes/iron-pick.png”,
+//     image: “assets/pickaxes/iron-pick.png”, // Just add your image URL here!
 //     crafting: { iron: 5, copper: 2 }
 // },
 // diamond: {
 //     name: “Diamond Pick”,
 //     power: 5,
-//     image: “assets/pickaxes/diamond-pick.png”,
+//     image: “https://your-image-url.com/diamond-pick.png”, // Or direct link!
 //     crafting: { diamond: 3, iron: 10 }
 // }
 };
