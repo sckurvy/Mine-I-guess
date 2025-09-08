@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mining Adventure</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Start Screen -->
+    <div class="start-screen" id="startScreen">
+        <h1 class="game-title">MINING ADVENTURE</h1>
+        <div class="start-form">
+            <div class="input-group">
+                <label for="playerName">Enter Your Name:</label>
+                <input type="text" id="playerName" placeholder="Miner123" maxlength="20">
+            </div>
+            <div class="input-group">
+                <label for="avatarUpload">Upload Avatar (Optional):</label>
+                <input type="file" id="avatarUpload" accept="image/*">
+            </div>
+            <button class="start-button" onclick="startGame()">START MINING</button>
+        </div>
+    </div>
+
+```
+<!-- Game UI -->
+<div class="game-ui" id="gameUI">
+    <div class="top-bar">
+        <div class="player-info">
+            <div class="avatar" id="gameAvatar">BOX</div>
+            <div class="player-name" id="gamePlayerName">Player</div>
+        </div>
+        <button class="settings-btn" onclick="openSettings()">SETTINGS</button>
+    </div>
+    
+    <canvas class="game-canvas" id="gameCanvas"></canvas>
+    
+    <div class="inventory">
+        <div class="inventory-title">INVENTORY</div>
+        <div class="inventory-items" id="inventoryItems"></div>
+    </div>
+    
+    <div class="pickaxe-info">
+        <div><strong>Current Pickaxe:</strong> <span id="currentPickaxe">Basic Pick</span></div>
+        <div><strong>Mining Power:</strong> <span id="miningPower">1</span></div>
+    </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="settings-modal" id="settingsModal">
+    <div class="settings-content">
+        <div class="settings-title">SETTINGS</div>
+        <div class="setting-item">
+            <label for="volumeSlider">Music Volume:</label>
+            <input type="range" id="volumeSlider" min="0" max="100" value="50">
+        </div>
+        <div class="setting-item">
+            <label for="newPlayerName">Change Name:</label>
+            <input type="text" id="newPlayerName" maxlength="20">
+        </div>
+        <div class="setting-item">
+            <label for="newAvatarUpload">Change Avatar:</label>
+            <input type="file" id="newAvatarUpload" accept="image/*">
+        </div>
+        <button class="close-settings" onclick="closeSettings()">CLOSE</button>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script src="game.js"></script>
+```
+
+</body>
+</html>
