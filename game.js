@@ -265,23 +265,87 @@ gameState.world.ores.forEach(ore => {
 });
 
 // Render player
-ctx.fillStyle = '#00ffff';
-ctx.fillRect(
-    gameState.player.x - GAME_CONFIG.PLAYER.SIZE/2,
-    gameState.player.y - GAME_CONFIG.PLAYER.SIZE/2,
-    GAME_CONFIG.PLAYER.SIZE,
-    GAME_CONFIG.PLAYER.SIZE
-);
+if (gameState.player.avatar) {
+    // Draw uploaded character image
+    const img = new Image();
+    img.src = gameState.player.avatar;
+    
+    // Draw character
+    ctx.drawImage(
+        img,
+        gameState.player.x - GAME_CONFIG.PLAYER.SIZE/2,
+        gameState.player.y - GAME_CONFIG.PLAYER.SIZE/2,
+        GAME_CONFIG.PLAYER.SIZE,
+        GAME_CONFIG.PLAYER.SIZE
+    );
+    
+    // Character outline
+    ctx.strokeStyle = '#00ffff';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(
+        gameState.player.x - GAME_CONFIG.PLAYER.SIZE/2,
+        gameState.player.y - GAME_CONFIG.PLAYER.SIZE/2,
+        GAME_CONFIG.PLAYER.SIZE,
+        GAME_CONFIG.PLAYER.SIZE
+    );
+} else {
+    // Default character (cyan box)
+    ctx.fillStyle = '#00ffff';
+    ctx.fillRect(
+        gameState.player.x - GAME_CONFIG.PLAYER.SIZE/2,
+        gameState.player.y - GAME_CONFIG.PLAYER.SIZE/2,
+        GAME_CONFIG.PLAYER.SIZE,
+        GAME_CONFIG.PLAYER.SIZE
+    );
+    
+    // Player outline
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(
+        gameState.player.x - GAME_CONFIG.PLAYER.SIZE/2,
+        gameState.player.y - GAME_CONFIG.PLAYER.SIZE/2,
+        GAME_CONFIG.PLAYER.SIZE,
+        GAME_CONFIG.PLAYER.SIZE
+    );
+}
 
-// Player outline
-ctx.strokeStyle = '#fff';
-ctx.lineWidth = 3;
-ctx.strokeRect(
-    gameState.player.x - GAME_CONFIG.PLAYER.SIZE/2,
-    gameState.player.y - GAME_CONFIG.PLAYER.SIZE/2,
-    GAME_CONFIG.PLAYER.SIZE,
-    GAME_CONFIG.PLAYER.SIZE
-);
+// Draw pickaxe next to player
+const currentPickaxe = PICKAXES[gameState.player.currentPickaxe];
+const pickaxeX = gameState.player.x + GAME_CONFIG.PLAYER.SIZE/2 + 15;
+const pickaxeY = gameState.player.y - 10;
+
+if (currentPickaxe.image && currentPickaxe.image !== null) {
+    // Draw actual pickaxe image if available
+    const pickaxeImg = new Image();
+    pickaxeImg.src = currentPickaxe.image;
+    
+    // Draw pickaxe image (20x30 size)
+    ctx.drawImage(
+        pickaxeImg,
+        pickaxeX - 10,
+        pickaxeY - 15,
+        20,
+        30
+    );
+    
+    // Pickaxe outline
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(pickaxeX - 10, pickaxeY - 15, 20, 30);
+} else {
+    // Pickaxe placeholder - gray rectangle for now
+    ctx.fillStyle = '#888';
+    ctx.fillRect(pickaxeX - 8, pickaxeY - 20, 16, 30);
+    
+    // Pickaxe handle
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(pickaxeX - 3, pickaxeY - 5, 6, 25);
+    
+    // Pickaxe outline
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(pickaxeX - 8, pickaxeY - 20, 16, 30);
+}
 
 ctx.restore();
 
@@ -345,4 +409,136 @@ if (oreIndex !== -1) {
 // Check if player can mine ore type
 function canMineOre(oreType) {
 const ore = ORES[oreType];
-const pickaxe = PICKAXES[gameState.player.
+const pickaxe = PICKAXES[gameState.player.currentPickaxe];
+return ore.requiredPickaxe === “basic” || pickaxe.power >= ore.requiredPickaxe;
+}
+
+// Update inventory display
+function updateInventoryDisplay() {
+const inventoryItems = document.getElementById(‘inventoryItems’);
+inventoryItems.innerHTML = ‘’;
+
+```
+Object.keys(gameState.inventory).forEach(oreType => {
+    const count = gameState.inventory[oreType];
+    if (count > 0) {
+        const item = document.createElement('div');
+        item.className = 'inventory-item';
+        item.innerHTML = `
+            <div style="width: 20px; height: 20px; background: ${ORES[oreType].color}; border-radius: 50%; margin-bottom: 2px;"></div>
+            <div>${count}</div>
+        `;
+        inventoryItems.appendChild(item);
+    }
+});
+```
+
+}
+
+// Update pickaxe info
+function updatePickaxeInfo() {
+const pickaxe = PICKAXES[gameState.player.currentPickaxe];
+document.getElementById(‘currentPickaxe’).textContent = pickaxe.name;
+document.getElementById(‘miningPower’).textContent = pickaxe.power;
+}
+
+// Event listeners
+function setupEventListeners() {
+// Keyboard events
+window.addEventListener(‘keydown’, (e) => {
+gameState.keys[e.key] = true;
+});
+
+```
+window.addEventListener('keyup', (e) => {
+    gameState.keys[e.key] = false;
+});
+
+// Canvas click for mining
+canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const canvasX = e.clientX - rect.left + gameState.camera.x;
+    const canvasY = e.clientY - rect.top + gameState.camera.y;
+    
+    // Check if click is near player (mining range)
+    const distance = Math.sqrt(
+        Math.pow(canvasX - gameState.player.x, 2) + 
+        Math.pow(canvasY - gameState.player.y, 2)
+    );
+    
+    if (distance <= 100) { // Mining range
+        mineOre(canvasX, canvasY);
+    }
+});
+
+// Window resize
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 80;
+});
+
+// Settings events
+document.getElementById('volumeSlider').addEventListener('input', (e) => {
+    gameState.settings.volume = e.target.value;
+});
+
+document.getElementById('newPlayerName').addEventListener('change', (e) => {
+    if (e.target.value.trim()) {
+        gameState.player.name = e.target.value.trim();
+        document.getElementById('gamePlayerName').textContent = gameState.player.name;
+    }
+});
+
+document.getElementById('newAvatarUpload').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            gameState.player.avatar = event.target.result;
+            const avatarElement = document.getElementById('gameAvatar');
+            avatarElement.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = event.target.result;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '3px';
+            avatarElement.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+```
+
+}
+
+// Settings modal functions
+function openSettings() {
+document.getElementById(‘settingsModal’).style.display = ‘flex’;
+document.getElementById(‘newPlayerName’).value = gameState.player.name;
+document.getElementById(‘volumeSlider’).value = gameState.settings.volume;
+}
+
+function closeSettings() {
+document.getElementById(‘settingsModal’).style.display = ‘none’;
+}
+
+// Initialize when DOM is loaded
+document.addEventListener(‘DOMContentLoaded’, function() {
+// Click outside modal to close
+document.getElementById(‘settingsModal’).addEventListener(‘click’, (e) => {
+if (e.target.id === ‘settingsModal’) {
+closeSettings();
+}
+});
+
+```
+// Prevent context menu on canvas
+document.addEventListener('contextmenu', (e) => {
+    if (e.target.id === 'gameCanvas') {
+        e.preventDefault();
+    }
+});
+```
+
+});
